@@ -134,7 +134,7 @@ public class RedissonController {
     @GetMapping("/hash")
     public Map<String, String> hash() {
         /**
-         * 字符串处理
+         * 哈希对象
          */
         RMap<String, String> map = redissonClient.getMap("hash");
         final RMap<String, String> old = map;
@@ -150,7 +150,7 @@ public class RedissonController {
     @GetMapping("/list")
     public List<String> list() {
         /**
-         * 字符串处理
+         * 列表对象
          */
         RList<String> rList = redissonClient.getList("list");
         final List<String> result = rList.readAll();
@@ -186,7 +186,7 @@ public class RedissonController {
     @GetMapping("/zset")
     public Collection<String> zset() {
         /**
-         * 字符串处理
+         * 有序集合
          */
         RSortedSet<String> rSet = redissonClient.getSortedSet("zset");
         final Collection<String> result = rSet.readAll();
