@@ -11,10 +11,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.PostConstruct;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -24,11 +29,10 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping("/redisson")
 public class RedissonController {
 
+    RRateLimiter rateLimiter;
     private Logger logger = LoggerFactory.getLogger(this.getClass());
-
     @Autowired
     private RedissonClient redissonClient;
-
 
     /**
      * 订阅主题
@@ -67,7 +71,6 @@ public class RedissonController {
         };
     }
 
-
     /**
      * 订阅主题
      *
@@ -93,7 +96,6 @@ public class RedissonController {
         };
     }
 
-
     /**
      * redisson
      */
@@ -110,7 +112,6 @@ public class RedissonController {
         return value;
     }
 
-
     /**
      * 字符串对象
      */
@@ -126,7 +127,6 @@ public class RedissonController {
         test.set(book);
         return value;
     }
-
 
     /**
      * 哈希对象
@@ -160,7 +160,6 @@ public class RedissonController {
         return result;
     }
 
-
     /**
      * 集合
      */
@@ -180,7 +179,6 @@ public class RedissonController {
         rSet.add("lihm");
         return result;
     }
-
 
     /**
      * 有序集合
@@ -204,7 +202,6 @@ public class RedissonController {
         return result;
     }
 
-
     /**
      * 计分排序集
      * ScoredSortedSet
@@ -227,7 +224,6 @@ public class RedissonController {
 
         return result;
     }
-
 
     /**
      * 队列
@@ -256,7 +252,6 @@ public class RedissonController {
         return result;
     }
 
-
     /**
      * 分布式主题--发布/订阅
      */
@@ -276,7 +271,6 @@ public class RedissonController {
         return receivedClient;
 
     }
-
 
     /**
      * 分布式锁
@@ -300,7 +294,6 @@ public class RedissonController {
 
     }
 
-
     /**
      * 限流器
      */
@@ -319,7 +312,7 @@ public class RedissonController {
 
 
         try {
-            System.out.println("config: " + new  ObjectMapper().writeValueAsString(rateLimiter.getConfig()));
+            System.out.println("config: " + new ObjectMapper().writeValueAsString(rateLimiter.getConfig()));
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
@@ -341,6 +334,43 @@ public class RedissonController {
                 }
             });
         }
+
+    }
+
+    @PostConstruct
+    public void setup() {
+        rateLimiter = redissonClient.getRateLimiter("rate_limiter");
+        rateLimiter.trySetRate(RateType.OVERALL, 1, 1, RateIntervalUnit.SECONDS);
+//        rateLimiter.setRate(RateType.OVERALL, 1, 1, RateIntervalUnit.SECONDS);
+    }
+
+    /**
+     * 限流器2
+     */
+    @GetMapping("/rateLimiter2")
+    public boolean rateLimiter2(HttpServletResponse response) {
+
+//        rateLimiter.setRate(RateType.OVERALL, 1, 1, RateIntervalUnit.SECONDS);
+
+        try {
+            System.out.println("config: " + new ObjectMapper().writeValueAsString(rateLimiter.getConfig()));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        if (!rateLimiter.tryAcquire()) {
+            logger.info("线程" + Thread.currentThread().getId() + " 接口限流了 ");
+            try {
+                response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
+                final ServletOutputStream outputStream = response.getOutputStream();
+                outputStream.write("接口限流了".getBytes());
+                outputStream.flush();
+                outputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+        return true;
 
     }
 
