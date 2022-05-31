@@ -1,6 +1,8 @@
 package com.example.redisdemo.controller;
 
 import com.example.redisdemo.Book;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.redisson.api.*;
 import org.redisson.api.listener.MessageListener;
 import org.redisson.client.codec.StringCodec;
@@ -14,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 @RestController
@@ -28,6 +32,7 @@ public class RedissonController {
 
     /**
      * 订阅主题
+     *
      * @param redissonClient
      * @return
      */
@@ -65,6 +70,7 @@ public class RedissonController {
 
     /**
      * 订阅主题
+     *
      * @param redissonClient
      * @return
      */
@@ -290,6 +296,50 @@ public class RedissonController {
 //
                 }
             }).start();
+        }
+
+    }
+
+
+    /**
+     * 限流器
+     */
+    @GetMapping("/rateLimiter")
+    public void rateLimiter() {
+
+        RRateLimiter rateLimiter = redissonClient.getRateLimiter("rate_limiter");
+        /**
+         * 1秒之内允许10访问数
+         * 注意trySetRate和setRate 区别
+         * trySetRate 场所设置如果已存在不修改，返回false，否者为true
+         * setRate 更新配置
+         */
+        rateLimiter.trySetRate(RateType.OVERALL, 4, 1, RateIntervalUnit.SECONDS);
+        rateLimiter.setRate(RateType.OVERALL, 4, 1, RateIntervalUnit.SECONDS);
+
+
+        try {
+            System.out.println("config: " + new  ObjectMapper().writeValueAsString(rateLimiter.getConfig()));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+
+        ExecutorService executorService = Executors.newFixedThreadPool(10);
+
+        for (int i = 0; i < 10; i++) {
+
+            executorService.submit(() -> {
+                try {
+
+                    logger.info("线程" + Thread.currentThread().getId() + " availablePermits：" + rateLimiter.availablePermits());
+                    rateLimiter.acquire(2);// 每次请求占用2个资源数
+                    logger.info("线程" + Thread.currentThread().getId() + "进入数据区：" + System.currentTimeMillis());
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
         }
 
     }
