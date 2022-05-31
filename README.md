@@ -1,6 +1,7 @@
 # redisdemo
 基于springboot 使用redis
 
+# springboot 2.7.0 集成Redisson实现分布式相关操作
 
 # springboot 使用Redisson
 
