@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,6 +35,10 @@ public class RedissonController {
     @Autowired
     private RedissonClient redissonClient;
 
+
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     /**
      * 订阅主题
      *
@@ -47,7 +52,6 @@ public class RedissonController {
 
 
 //            RShardedTopic myTopic = redissonClient.getShardedTopic("myTopic");
-
 
             myTopic.addListener(Book.class, new MessageListener<Book>() {
 

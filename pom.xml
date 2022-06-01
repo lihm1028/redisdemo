@@ -47,9 +47,26 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
+            <exclusions>
+                <!-- 排除 lettuce 只要不使用lettuce 排不排除都不影响 -->
+                <exclusion>
+                    <groupId>io.lettuce</groupId>
+                    <artifactId>lettuce-core</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
-        <!--  org.redisson -->
+        <!-- 使用jedis 需配置spring.redis.client-type=jedis -->
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+        </dependency>
+
+
+        <!--
+              使用 org.redisson 优先级最高 因为后加载的RedisAutoConfiguration
+             RedissonAutoConfiguration 中配置了 @AutoConfigureBefore({RedisAutoConfiguration.class})
+         -->
         <dependency>
             <groupId>org.redisson</groupId>
             <artifactId>redisson-spring-boot-starter</artifactId>

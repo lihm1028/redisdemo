@@ -261,4 +261,37 @@ RedissonLock 的ttl也不是永久的，默认是30s。
 
 ```
 
+
+# springboot 集成另外两个redis驱动 jedis、lettuce
+
+
+## 使用lettuce 
+springboot默认就是lettuce驱动，不需要任何配置，默认依赖spring-boot-starter-data-redis即可。
+```
+ <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>         
+ </dependency>
+
+```
+
+
+## 使用jedis
+Jedis是Redis的Java实现的客户端，其API提供了比较全面的Redis命令的支持；
+Jedis中的方法调用是比较底层的暴露的Redis的API，也即Jedis中的Java方法基本和Redis的API保持着一致，了解Redis的API，也就能熟练的使用Jedis。
+```
+<!-- 使用jedis 需配置spring.redis.client-type=jedis -->
+<dependency>
+    <groupId>redis.clients</groupId>
+    <artifactId>jedis</artifactId>
+</dependency>
+
+除了配置依赖，还需要指定配置spring.redis.client-type=jedis
+
+```
+
+
+
+
+
 项目地址：https://github.com/lihm1028/redisdemo
