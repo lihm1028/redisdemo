@@ -379,4 +379,27 @@ public class RedissonController {
     }
 
 
+    @GetMapping("/bloomFilter")
+    public boolean contains() {
+        final RBloomFilter<String> bloomFilter = redissonClient.getBloomFilter("", StringCodec.INSTANCE);
+        /**
+         * 设置初始容量和误报率
+         */
+        bloomFilter.tryInit(1000000L, 0.02);
+
+        bloomFilter.add("老子");
+        bloomFilter.add("孔子");
+        bloomFilter.add("孟子");
+        bloomFilter.add("荀子");
+        bloomFilter.add("庄子");
+        bloomFilter.add("韩非");
+        bloomFilter.add("李斯");
+        bloomFilter.add("连横合纵-战国时期伟大的谋略");
+        bloomFilter.add("连横-张仪");
+        bloomFilter.add("合纵-苏秦");
+        System.out.println(bloomFilter.contains("连横合纵"));
+        return bloomFilter.contains("韩非");
+    }
+
+
 }
