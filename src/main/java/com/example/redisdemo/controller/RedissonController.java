@@ -381,7 +381,7 @@ public class RedissonController {
 
     @GetMapping("/bloomFilter")
     public boolean contains() {
-        final RBloomFilter<String> bloomFilter = redissonClient.getBloomFilter("", StringCodec.INSTANCE);
+        final RBloomFilter<String> bloomFilter = redissonClient.getBloomFilter("dbKeys", StringCodec.INSTANCE);
         /**
          * 设置初始容量和误报率
          */
