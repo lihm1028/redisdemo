@@ -42,29 +42,29 @@ public class MessagingRedisApplication {
     }
 
 
-    @Bean
-    RedisMessageListenerContainer redisMessageListenerContainer(RedisConnectionFactory connectionFactory,
-                                                                MessageListenerAdapter listenerAdapter) {
-
-        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
-        container.setConnectionFactory(connectionFactory);
-        container.addMessageListener(listenerAdapter, new PatternTopic("chat"));
-
-        return container;
-    }
-
-
-    @Bean
-    MessageListenerAdapter listenerAdapter(Receiver receiver) {
-        return new MessageListenerAdapter(receiver, "receiveMessage");
-    }
-
-    @Bean
-    Receiver receiver() {
-        return new Receiver();
-    }
-
-
+//    @Bean
+//    RedisMessageListenerContainer redisMessageListenerContainer(RedisConnectionFactory connectionFactory,
+//                                                                MessageListenerAdapter listenerAdapter) {
+//
+//        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
+//        container.setConnectionFactory(connectionFactory);
+//        container.addMessageListener(listenerAdapter, new PatternTopic("chat"));
+//
+//        return container;
+//    }
+//
+//
+//    @Bean
+//    MessageListenerAdapter listenerAdapter(Receiver receiver) {
+//        return new MessageListenerAdapter(receiver, "receiveMessage");
+//    }
+//
+//    @Bean
+//    Receiver receiver() {
+//        return new Receiver();
+//    }
+//
+//
     @Bean
     StringRedisTemplate template(RedisConnectionFactory connectionFactory) {
         return new StringRedisTemplate(connectionFactory);

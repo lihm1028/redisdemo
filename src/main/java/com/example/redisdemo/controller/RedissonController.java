@@ -32,6 +32,7 @@ public class RedissonController {
 
     RRateLimiter rateLimiter;
     private Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Autowired
     private RedissonClient redissonClient;
 
@@ -215,7 +216,7 @@ public class RedissonController {
         /**
          * 计分排序集
          */
-        RScoredSortedSet<String> rSet = redissonClient.getScoredSortedSet("ScoredSortedSet");
+        RScoredSortedSet<String> rSet = redissonClient.getScoredSortedSet("ScoredSortedSet",StringCodec.INSTANCE);
         final Collection<String> result = rSet.readAll();
         rSet.add(0.33, "孔子-性善论");
         rSet.add(0.251, "孟子-老师（孔子孙子子思）");
